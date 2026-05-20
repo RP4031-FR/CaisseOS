@@ -35,5 +35,5 @@ HTML5
 CSS3
 JavaScript Vanilla
 LocalStorage
-Objectif
+L'objectif:
 CaisseOS a été conçu pour offrir une caisse simple, moderne et légère pouvant fonctionner sur presque n’importe quel ordinateur sans serveur complexe ni base de données externe.
