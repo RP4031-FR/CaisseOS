@@ -306,6 +306,54 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
 @keyframes slideLeft{from{transform:translateX(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media print{body>*:not(#print-area){display:none!important}#print-area{display:block!important;padding:0;margin:0}.receipt{border:none;max-width:100%;margin:0}}
 #print-area{display:none}
+
+/* REFUND */
+.refund-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;background:var(--bg3);transition:all .15s}
+.refund-item.selected{border-color:var(--danger);background:rgba(224,82,82,.07)}
+.refund-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--danger);cursor:pointer;flex-shrink:0}
+.refund-item .ri-info{flex:1}
+.refund-item .ri-name{font-size:12px;font-weight:700}
+.refund-item .ri-price{font-size:11px;color:var(--text2)}
+.refund-item .ri-qty{display:flex;align-items:center;gap:6px}
+.refund-item .ri-qty input{width:50px;padding:4px 6px;font-size:12px;text-align:center}
+.refund-total-box{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bg3);border:1px solid var(--danger);border-radius:var(--r)}
+.refund-total-val{font-family:var(--display);font-size:28px;font-weight:900;color:var(--danger)}
+.bw .refund-total-val{color:var(--text)}
+.refund-methods{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px}
+.ref-method-btn{padding:10px 8px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+.ref-method-btn:hover{border-color:var(--danger)}
+.ref-method-btn.selected{border-color:var(--danger);background:rgba(224,82,82,.1);color:var(--danger)}
+.bw .ref-method-btn.selected{border-color:#000;background:var(--bg4);color:#000}
+.ref-method-btn .rm-icon{font-size:20px}
+.ref-method-btn .rm-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+/* History refund badges */
+.refund-badge{font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:50px;border:1px solid}
+.refund-badge.full{color:var(--danger);border-color:var(--danger);background:rgba(224,82,82,.1)}
+.refund-badge.partial{color:var(--orange);border-color:var(--orange);background:rgba(251,146,60,.1)}
+.bw .refund-badge{color:var(--text2);border-color:var(--border);background:transparent}
+/* Refund entry in history */
+.history-item.is-refund{border-color:rgba(224,82,82,.3);background:rgba(224,82,82,.04)}
+.history-item.is-refund .h-total{color:var(--danger)}
+.bw .history-item.is-refund .h-total{color:var(--text)}
+.history-item.is-refund .h-num{color:var(--danger)}
+
+/* IMPORT BACKUP */
+.import-zone{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.import-sep{display:flex;align-items:center;gap:10px}
+.import-sep span{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);white-space:nowrap}
+.import-sep::before,.import-sep::after{content:'';flex:1;height:1px;background:var(--border)}
+.import-drop{border:2px dashed var(--border);border-radius:6px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;color:var(--text2);background:var(--bg3);position:relative}
+.import-drop:hover,.import-drop.dragover{border-color:var(--accent);color:var(--text);background:var(--bg4)}
+.import-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.import-drop .id-icon{font-size:26px;margin-bottom:6px}
+.import-drop .id-label{font-size:12px;font-weight:600}
+.import-drop .id-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.import-preview{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:12px;display:flex;flex-direction:column;gap:5px}
+.import-preview.ok{border-color:var(--success)}
+.import-preview.error{border-color:var(--danger);color:var(--danger)}
+.import-preview .ip-title{font-weight:700;color:var(--text);margin-bottom:2px}
+.import-preview .ip-row{display:flex;justify-content:space-between;color:var(--text2)}
+.import-preview .ip-row span:last-child{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -329,10 +377,29 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       <div class="form-group"><label>Identifiant</label><input id="reg-user" type="text" placeholder="choisir un identifiant"></div>
       <div class="form-group"><label>Mot de passe</label><input id="reg-pass" type="password" placeholder="au moins 4 caractères"></div>
       <div class="form-group"><label>Nom de l'entreprise *</label><input id="reg-company" type="text" placeholder="ex: Boulangerie Martin"></div>
-      <div class="form-group"><label>Téléphone</label><input id="reg-phone" type="tel" placeholder="ex: 02 97 12 34 56"></div>
+      <div class="form-group"><label>Téléphone</label><input id="reg-phone" type="tel" placeholder="ex: 06.12.34.56.78" oninput="formatPhone(this)"></div>
       <button class="primary w100" onclick="register()">Créer le compte →</button>
     </div>
-    <div class="auth-footer">CaisseOS v2.0 · Données 100% locales</div>
+
+    <!-- IMPORT BACKUP -->
+    <div class="import-zone">
+      <div class="import-sep"><span>ou restaurer une sauvegarde</span></div>
+      <div class="import-drop" id="import-drop"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="handleImportDrop(event)">
+        <input type="file" accept=".json,application/json" onchange="handleImportFile(this.files[0])">
+        <div class="id-icon">📂</div>
+        <div class="id-label">Glissez votre fichier backup ici</div>
+        <div class="id-sub">ou cliquez pour sélectionner · Format .json</div>
+      </div>
+      <div id="import-preview" class="import-preview hidden"></div>
+      <button id="import-confirm-btn" class="primary w100 hidden" onclick="confirmImport()">
+        ✓ Restaurer et se connecter
+      </button>
+    </div>
+
+    <div class="auth-footer">CaisseOS v2.0.1 · Données 100% locales</div>
   </div>
 </div>
 
@@ -345,7 +412,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       <span class="topbar-company-phone" id="tb-phone">—</span>
     </div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showView('pos')" data-view="pos">⬛ Caisse</button>
+      <button class="nav-tab active" onclick="showView('pos')" data-view="pos">🛍️ Caisse</button>
       <button class="nav-tab" onclick="showView('history')" data-view="history">📋 Historique</button>
       <button class="nav-tab" onclick="showView('giftcards')" data-view="giftcards">🎁 Cartes Cadeaux</button>
       <button class="nav-tab" onclick="showView('loyalty')" data-view="loyalty">⭐ Fidélité</button>
@@ -445,7 +512,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
           <div class="settings-body">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
               <div class="form-group" style="margin:0"><label>Nom de l'entreprise</label><input id="set-company" type="text" placeholder="ex: Boulangerie Martin"></div>
-              <div class="form-group" style="margin:0"><label>Téléphone</label><input id="set-phone" type="tel" placeholder="ex: 02 97 12 34 56"></div>
+              <div class="form-group" style="margin:0"><label>Téléphone</label><input id="set-phone" type="tel" placeholder="ex: 06.12.34.56.78" oninput="formatPhone(this)"></div>
             </div>
             <div class="form-group"><label>Message pied de ticket</label><input id="set-footer" type="text" placeholder="ex: Merci de votre visite !"></div>
             <div class="form-group" style="max-width:180px"><label>Taux de TVA (%)</label><input id="set-tva" type="number" min="0" max="100" step="0.1" placeholder="20"></div>
@@ -646,6 +713,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
     <div class="modal-body" style="padding:10px"><div id="receipt-content"></div></div>
     <div class="modal-footer">
       <button onclick="closeModal('modal-receipt')">Fermer</button>
+      <button id="receipt-refund-btn" class="danger hidden" onclick="openRefundModal()">↩ Rembourser</button>
       <button class="primary" onclick="printReceipt()">🖨 Imprimer</button>
     </div>
   </div>
@@ -711,7 +779,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
     </div>
     <div class="modal-body">
       <div class="form-group"><label>Nom *</label><input id="loy-name" type="text" placeholder="ex: Marie Martin"></div>
-      <div class="form-group"><label>Téléphone</label><input id="loy-phone" type="tel" placeholder="ex: 06 12 34 56 78"></div>
+      <div class="form-group"><label>Téléphone</label><input id="loy-phone" type="tel" placeholder="ex: 06.12.34.56.78" oninput="formatPhone(this)"></div>
       <div class="form-group"><label>Email</label><input id="loy-email" type="email" placeholder="ex: marie@email.com"></div>
       <div class="form-group"><label>Points de départ</label><input id="loy-pts-start" type="number" min="0" value="0"></div>
     </div>
@@ -748,6 +816,70 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
     <div class="modal-footer">
       <button onclick="closeModal('modal-confirm')">Annuler</button>
       <button class="danger" id="confirm-ok-btn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- REFUND MODAL -->
+<div id="modal-refund" class="modal-overlay hidden">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <span class="modal-title">↩ Remboursement</span>
+      <button class="modal-close" onclick="closeModal('modal-refund')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Original ticket info -->
+      <div id="refund-ticket-info" style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--text2)"></div>
+      <!-- Item selection -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="margin:0">Articles à rembourser</label>
+          <div style="display:flex;gap:6px">
+            <button onclick="selectAllRefund(true)" style="font-size:10px;padding:3px 8px">Tout sélect.</button>
+            <button onclick="selectAllRefund(false)" style="font-size:10px;padding:3px 8px">Tout désélect.</button>
+          </div>
+        </div>
+        <div id="refund-items-list"></div>
+      </div>
+      <!-- Refund total -->
+      <div class="refund-total-box">
+        <span class="dim small upper">Montant remboursé</span>
+        <span class="refund-total-val" id="refund-total-display">0,00 €</span>
+      </div>
+      <!-- Refund method -->
+      <div>
+        <label style="margin-bottom:10px">Mode de remboursement</label>
+        <div class="refund-methods">
+          <div class="ref-method-btn" id="rm-especes" onclick="selectRefundMethod('especes')">
+            <div class="rm-icon">💵</div><div class="rm-label">Espèces</div>
+          </div>
+          <div class="ref-method-btn" id="rm-cb" onclick="selectRefundMethod('cb')">
+            <div class="rm-icon">💳</div><div class="rm-label">CB</div>
+          </div>
+          <div class="ref-method-btn" id="rm-avoir" onclick="selectRefundMethod('avoir')">
+            <div class="rm-icon">🎁</div><div class="rm-label">Avoir / Carte</div>
+          </div>
+        </div>
+        <!-- Avoir: create or credit gift card -->
+        <div id="rm-avoir-detail" class="hidden" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+          <div style="font-size:11px;color:var(--text2)">Créer une nouvelle carte cadeau avec le montant de l'avoir, ou créditer une carte existante :</div>
+          <div style="display:flex;gap:8px">
+            <input id="avoir-gc-code" type="text" placeholder="Code carte existante (optionnel)" style="flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+            <button onclick="checkAvoirGC()">Vérifier</button>
+          </div>
+          <div id="avoir-gc-result"></div>
+        </div>
+      </div>
+      <!-- Reason -->
+      <div class="form-group" style="margin:0">
+        <label>Motif du remboursement (optionnel)</label>
+        <input id="refund-reason" type="text" placeholder="ex: Article défectueux, Erreur de commande…">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-refund')">Annuler</button>
+      <button class="danger" id="confirm-refund-btn" onclick="confirmRefund()" disabled>↩ Valider le remboursement</button>
     </div>
   </div>
 </div>
@@ -854,7 +986,8 @@ function showView(v) {
     document.getElementById('view-' + n).classList.toggle('hidden', n !== v)
   );
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('active', b.dataset.view === v));
-  if (v === 'history') renderHistory();
+  if (v === 'pos')      { renderProducts(); renderCart(); }
+  if (v === 'history')  renderHistory();
   if (v === 'giftcards') renderGC();
   if (v === 'loyalty') renderLoyalty();
   if (v === 'settings') loadSettings();
@@ -1216,9 +1349,38 @@ const payLabel = m => ({ cb: '💳 CB', especes: '💵 Espèces', carte_cadeau: 
 // ═══════════════════════════════════════
 // RECEIPT
 // ═══════════════════════════════════════
+let currentReceiptTicketId = null;
 function showReceipt(ticket, ptsEarned = 0) {
+  currentReceiptTicketId = ticket.id;
   document.getElementById('receipt-content').innerHTML = buildReceiptHTML(ticket, ptsEarned);
+  // Show refund button only for historical tickets (not fresh checkout), and not already fully refunded
+  const refundBtn = document.getElementById('receipt-refund-btn');
+  const alreadyFull = isFullyRefunded(ticket);
+  const fromHistory = !ptsEarned || true; // always show for history
+  if (alreadyFull) {
+    refundBtn.classList.remove('hidden');
+    refundBtn.disabled = true;
+    refundBtn.textContent = '✓ Remboursé';
+  } else {
+    refundBtn.classList.remove('hidden');
+    refundBtn.disabled = false;
+    refundBtn.textContent = '↩ Rembourser';
+  }
   document.getElementById('modal-receipt').classList.remove('hidden');
+}
+
+function isFullyRefunded(ticket) {
+  if (!ticket.refunds || !ticket.refunds.length) return false;
+  const refundedTotal = ticket.refunds.reduce((s, r) => s + r.total, 0);
+  return refundedTotal >= ticket.total - 0.01;
+}
+
+function getRefundedQtyForItem(ticket, itemId) {
+  if (!ticket.refunds) return 0;
+  return ticket.refunds.reduce((s, r) => {
+    const ri = r.items.find(i => i.id === itemId);
+    return s + (ri ? ri.qty : 0);
+  }, 0);
 }
 
 function buildReceiptHTML(t, ptsEarned = 0) {
@@ -1271,6 +1433,14 @@ function buildReceiptHTML(t, ptsEarned = 0) {
     <div class="receipt-totals">${totals}</div>
     ${payHtml}${loyHtml}
     ${t.note ? `<div class="rsection" style="font-size:11px;color:#555">Note : ${esc(t.note)}</div>` : ''}
+    ${(t.refunds && t.refunds.length) ? `<div class="rsection">
+      <div class="rsection-title" style="color:#e05252">Remboursements</div>
+      ${t.refunds.map(r => {
+        const rd = new Date(r.date).toLocaleDateString('fr-FR');
+        const refMethod = {especes:'💵 Espèces',cb:'💳 CB',avoir:'🎁 Avoir'}[r.method]||r.method;
+        return `<div class="rrow" style="color:#e05252"><span>${rd} · ${refMethod}</span><span>−${fp(r.total)}</span></div>`;
+      }).join('')}
+    </div>` : ''}
     <div class="receipt-footer">
       <div class="receipt-barcode">||||| ${String(t.number).padStart(8,'0')} |||||</div>
       <div>${esc(footer)}</div>
@@ -1293,14 +1463,20 @@ function renderHistory() {
   const txs = U.transactions;
   const total = txs.reduce((s, t) => s + t.total, 0);
   const today = txs.filter(t => new Date(t.date).toDateString() === new Date().toDateString());
-  const avg = txs.length ? total / txs.length : 0;
+  const salesOnly = txs.filter(t => !t.isRefund);
+  const avg = salesOnly.length ? salesOnly.reduce((s,t)=>s+t.total,0) / salesOnly.length : 0;
   const cbAmt = txs.filter(t => t.payment?.method === 'cb').reduce((s, t) => s + t.total, 0);
   const cashAmt = txs.filter(t => t.payment?.method === 'especes').reduce((s, t) => s + t.total, 0);
   const gcAmt = txs.reduce((s, t) => s + (t.payment?.gcAmount || 0), 0);
+  const sales = txs.filter(t => !t.isRefund);
+  const refunds = txs.filter(t => t.isRefund);
+  const refundTotal = refunds.reduce((s, t) => s + Math.abs(t.total), 0);
+  const netCA = total - refundTotal;
   document.getElementById('stats-bar').innerHTML = [
-    [txs.length, 'Ventes totales'], [fp(total), 'CA total'],
-    [today.length, "Aujourd'hui"], [fp(avg), 'Panier moyen'],
-    [fp(cbAmt), 'CA par CB'], [fp(cashAmt), 'CA espèces'], [fp(gcAmt), 'CA cartes cadeaux']
+    [sales.length, 'Ventes'], [fp(total), 'CA brut'],
+    [fp(netCA), 'CA net'], [fp(avg), 'Panier moyen'],
+    [refunds.length, 'Remboursements'], [fp(refundTotal), 'Montant remb.'],
+    [fp(cbAmt), 'CA par CB']
   ].map(([v, l]) => `<div class="stat-box"><div class="stat-val">${v}</div><div class="stat-lbl">${l}</div></div>`).join('');
   filterHistory();
 }
@@ -1323,6 +1499,26 @@ function filterHistory() {
     const ds = d.toLocaleDateString('fr-FR', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) + ' · ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     const items = t.items.map(i => `${i.emoji||''} ${i.name} x${i.qty}`).join(', ');
     const pm = t.payment?.method || '';
+    // Refund entry styling
+    if (t.isRefund) {
+      return `<div class="history-item is-refund" onclick="viewRefundEntry('${t.id}')">
+        <div class="h-num" style="color:var(--danger)">↩</div>
+        <div class="h-info">
+          <div class="h-date">${ds} · <span style="color:var(--danger)">REMBOURSEMENT</span></div>
+          <div class="h-items">${esc(items.substring(0, 90))}${items.length > 90 ? '…' : ''}</div>
+          ${t.note ? `<div class="small dim">📝 ${esc(t.note)}</div>` : ''}
+        </div>
+        <div class="h-total" style="color:var(--danger)">${fp(t.total)}</div>
+        <span class="pay-tag" style="color:var(--danger);border-color:var(--danger);background:rgba(224,82,82,.1)">↩ Remb.</span>
+      </div>`;
+    }
+    // Refund status badge
+    let refundBadge = '';
+    if (t.refunds?.length) {
+      const refundedAmt = t.refunds.reduce((s,r) => s+r.total, 0);
+      const isFull = refundedAmt >= t.total - 0.01;
+      refundBadge = `<span class="refund-badge ${isFull?'full':'partial'}">${isFull?'✓ Remboursé':'~ Partiel ('+fp(refundedAmt)+')'}</span>`;
+    }
     return `<div class="history-item" onclick="viewTicket('${t.id}')">
       <div class="h-num">#${String(t.number).padStart(4,'0')}</div>
       <div class="h-info">
@@ -1331,12 +1527,37 @@ function filterHistory() {
         ${t.note ? `<div class="small dim">📝 ${esc(t.note)}</div>` : ''}
       </div>
       <div class="h-total">${fp(t.total)}</div>
-      ${pm ? `<span class="pay-tag ${pm}">${payLabel(pm)}</span>` : ''}
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${pm ? `<span class="pay-tag ${pm}">${payLabel(pm)}</span>` : ''}
+        ${refundBadge}
+      </div>
     </div>`;
   }).join('');
 }
 
 function viewTicket(id) { const t = U.transactions.find(x => x.id === id); if (t) showReceipt(t); }
+function viewRefundEntry(id) {
+  const t = U.transactions.find(x => x.id === id); if (!t || !t.isRefund) return;
+  const d = new Date(t.date);
+  const ds = d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  const refMethod = { especes:'💵 Espèces', cb:'💳 CB', avoir:'🎁 Avoir/Carte' }[t.payment?.method] || t.payment?.method || '—';
+  document.getElementById('receipt-content').innerHTML = `<div class="receipt">
+    <div class="receipt-header">
+      <div class="receipt-company" style="color:#e05252">REMBOURSEMENT</div>
+      <div class="receipt-ticket">Ticket original #${String(t.number).padStart(4,'0')}</div>
+      <div class="receipt-date">${ds}</div>
+    </div>
+    <div class="receipt-items">${t.items.map(i=>`<div class="ri"><span class="rn">${esc(i.emoji)} ${esc(i.name)}</span><span class="rq">x${i.qty}</span><span class="rp">${fp(i.price*i.qty)}</span></div>`).join('')}</div>
+    <div class="receipt-totals">
+      <div class="rrow big" style="color:#e05252"><span>REMBOURSÉ</span><span>${fp(-t.total)}</span></div>
+    </div>
+    <div class="rsection"><div class="rsection-title">Mode de remboursement</div><div class="rrow"><span>${refMethod}</span>${t.payment?.gcCode?`<span>Carte : ${t.payment.gcCode}</span>`:''}</div></div>
+    ${t.note?`<div class="rsection" style="font-size:11px;color:#555">Motif : ${esc(t.note)}</div>`:''}
+    <div class="receipt-footer"><div>CaisseOS · Bon de remboursement</div></div>
+  </div>`;
+  document.getElementById('receipt-refund-btn').classList.add('hidden');
+  document.getElementById('modal-receipt').classList.remove('hidden');
+}
 
 function exportCSV() {
   if (!U?.transactions.length) { toast('Aucune donnée', 'error'); return; }
@@ -1348,10 +1569,16 @@ function exportCSV() {
     payLabel(t.payment?.method||''), t.note||''
   ]));
   const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const csvBlob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const csvUrl = URL.createObjectURL(csvBlob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
-  a.download = `ventes_${U.company||'export'}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); toast('Export CSV téléchargé', 'success');
+  a.href = csvUrl;
+  a.download = 'ventes_' + (U.company||'export') + '_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(csvUrl);
+  toast('Export CSV téléchargé', 'success');
 }
 
 // ═══════════════════════════════════════
@@ -1619,6 +1846,16 @@ function loadSettings() {
   document.getElementById('set-loy-reward').value = U.loyaltyReward || 5;
   document.getElementById('toggle-bw').checked = !!U.bw;
   document.getElementById('toggle-tva').checked = !!U.showTva;
+  // Update formula preview
+  const rate = U.loyaltyRate || 1;
+  const threshold = U.loyaltyThreshold || 100;
+  const reward = U.loyaltyReward || 5;
+  const exEl = document.getElementById('loy-ex-pts');
+  const thEl = document.getElementById('loy-ex-threshold');
+  const rwEl = document.getElementById('loy-ex-reward');
+  if (exEl) exEl.textContent = Math.floor(100 * rate) + ' pts';
+  if (thEl) thEl.textContent = threshold + ' pts';
+  if (rwEl) rwEl.textContent = reward.toFixed(2).replace('.', ',') + ' €';
 }
 function saveSettings() {
   U.company = document.getElementById('set-company').value.trim();
@@ -1643,10 +1880,397 @@ function changePassword() {
 }
 function clearHistory() { confirmAction('Effacer l\'historique', 'Toutes les ventes seront supprimées.', () => { U.transactions = []; U.nextTicket = 1; saveU(); renderHistory(); toast('Historique effacé'); }); }
 function deleteAccount() { confirmAction('Supprimer le compte', 'Toutes vos données seront perdues.', () => { const all = GA().filter(a => a.id !== U.id); SA(all); logout(); }); }
+function exportAllData() {
+  if (!U) return;
+  const payload = {
+    exportDate: new Date().toISOString(),
+    account: { username: U.username, company: U.company, phone: U.phone },
+    products: U.products,
+    transactions: U.transactions,
+    giftCards: U.giftCards,
+    loyaltyCustomers: U.loyaltyCustomers
+  };
+  const data = JSON.stringify(payload, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'caisseOS_backup_' + U.username + '_' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Sauvegarde téléchargée', 'success');
+}
+
+
+// ═══════════════════════════════════════
+// REFUNDS
+// ═══════════════════════════════════════
+let currentRefundTicketId = null;
+let selectedRefundMethod = null;
+let avoirGCTarget = null; // existing GC to credit for avoir
+
+function openRefundModal() {
+  const ticket = U.transactions.find(t => t.id === currentReceiptTicketId);
+  if (!ticket) return;
+  currentRefundTicketId = ticket.id;
+  selectedRefundMethod = null;
+  avoirGCTarget = null;
+  // Reset UI
+  ['especes','cb','avoir'].forEach(m => document.getElementById('rm-' + m).classList.remove('selected'));
+  document.getElementById('rm-avoir-detail').classList.add('hidden');
+  document.getElementById('avoir-gc-code').value = '';
+  document.getElementById('avoir-gc-result').innerHTML = '';
+  document.getElementById('refund-reason').value = '';
+  document.getElementById('confirm-refund-btn').disabled = true;
+
+  // Ticket info header
+  const d = new Date(ticket.date);
+  const ds = d.toLocaleDateString('fr-FR') + ' · ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('refund-ticket-info').innerHTML =
+    `<strong>Ticket #${String(ticket.number).padStart(4,'0')}</strong> · ${ds} · <strong style="color:var(--accent)">${fp(ticket.total)}</strong>` +
+    (ticket.refunds?.length ? ` · <span style="color:var(--orange)">Déjà remboursé : ${fp(ticket.refunds.reduce((s,r)=>s+r.total,0))}</span>` : '');
+
+  // Build item list with remaining quantities
+  const list = document.getElementById('refund-items-list');
+  list.innerHTML = ticket.items.map(item => {
+    const alreadyQty = getRefundedQtyForItem(ticket, item.id);
+    const remaining = item.qty - alreadyQty;
+    if (remaining <= 0) return '';
+    return `<div class="refund-item" id="ri-${item.id}" data-id="${item.id}" data-price="${item.price}" data-max="${remaining}">
+      <input type="checkbox" id="chk-${item.id}" onchange="updateRefundItem('${item.id}')" checked>
+      <div class="ri-info">
+        <div class="ri-name">${esc(item.emoji||'')} ${esc(item.name)}</div>
+        <div class="ri-price">${fp(item.price)} / unité · max ${remaining}</div>
+      </div>
+      <div class="ri-qty">
+        <button onclick="changeRefundQty('${item.id}',-1)" style="width:22px;height:22px;padding:0;font-size:14px">−</button>
+        <input type="number" id="qty-${item.id}" value="${remaining}" min="1" max="${remaining}" style="width:50px;padding:4px 6px;font-size:12px;text-align:center" oninput="calcRefundTotal()">
+        <button onclick="changeRefundQty('${item.id}',1)" style="width:22px;height:22px;padding:0;font-size:14px">+</button>
+      </div>
+      <strong style="min-width:60px;text-align:right;font-size:12px" id="ri-total-${item.id}">${fp(item.price * remaining)}</strong>
+    </div>`;
+  }).join('');
+
+  calcRefundTotal();
+  document.getElementById('modal-refund').classList.remove('hidden');
+}
+
+function updateRefundItem(id) {
+  const chk = document.getElementById('chk-' + id);
+  const row = document.getElementById('ri-' + id);
+  row.classList.toggle('selected', chk.checked);
+  calcRefundTotal();
+}
+
+function changeRefundQty(id, delta) {
+  const inp = document.getElementById('qty-' + id);
+  const row = document.getElementById('ri-' + id);
+  const max = parseInt(row.dataset.max);
+  let val = parseInt(inp.value) + delta;
+  val = Math.max(0, Math.min(max, val));
+  inp.value = val;
+  if (val === 0) { document.getElementById('chk-' + id).checked = false; row.classList.remove('selected'); }
+  else { document.getElementById('chk-' + id).checked = true; row.classList.add('selected'); }
+  calcRefundTotal();
+}
+
+function calcRefundTotal() {
+  const ticket = U.transactions.find(t => t.id === currentRefundTicketId);
+  if (!ticket) return;
+  let total = 0;
+  ticket.items.forEach(item => {
+    const chk = document.getElementById('chk-' + item.id);
+    const qtyInp = document.getElementById('qty-' + item.id);
+    const totalEl = document.getElementById('ri-total-' + item.id);
+    if (!chk) return;
+    const qty = chk.checked ? (parseInt(qtyInp?.value) || 0) : 0;
+    const lineTotal = item.price * qty;
+    total += lineTotal;
+    if (totalEl) totalEl.textContent = fp(lineTotal);
+  });
+  document.getElementById('refund-total-display').textContent = fp(total);
+  const btn = document.getElementById('confirm-refund-btn');
+  btn.disabled = total <= 0 || !selectedRefundMethod || (selectedRefundMethod === 'avoir' && avoirGCTarget === 'new' ? false : selectedRefundMethod === 'avoir' && avoirGCTarget === null);
+  // avoir: allow if we're creating new or credited existing
+  if (selectedRefundMethod === 'avoir') {
+    btn.disabled = total <= 0;
+  }
+}
+
+function selectAllRefund(checked) {
+  const ticket = U.transactions.find(t => t.id === currentRefundTicketId);
+  if (!ticket) return;
+  ticket.items.forEach(item => {
+    const chk = document.getElementById('chk-' + item.id);
+    const qtyInp = document.getElementById('qty-' + item.id);
+    const row = document.getElementById('ri-' + item.id);
+    if (!chk) return;
+    chk.checked = checked;
+    if (checked && qtyInp) {
+      const max = parseInt(row?.dataset.max || 0);
+      qtyInp.value = max;
+    }
+    if (row) row.classList.toggle('selected', checked);
+  });
+  calcRefundTotal();
+}
+
+function selectRefundMethod(m) {
+  selectedRefundMethod = m;
+  ['especes','cb','avoir'].forEach(x => document.getElementById('rm-' + x).classList.toggle('selected', x === m));
+  document.getElementById('rm-avoir-detail').classList.toggle('hidden', m !== 'avoir');
+  if (m !== 'avoir') avoirGCTarget = null;
+  calcRefundTotal();
+}
+
+function checkAvoirGC() {
+  const code = document.getElementById('avoir-gc-code').value.trim().toUpperCase();
+  const res = document.getElementById('avoir-gc-result');
+  if (!code) { avoirGCTarget = 'new'; res.innerHTML = `<div class="info-box ok" style="margin-top:6px">✓ Une nouvelle carte cadeau sera créée avec le montant de l'avoir</div>`; calcRefundTotal(); return; }
+  const gc = U.giftCards.find(c => c.code === code);
+  if (!gc) { res.innerHTML = `<div class="info-box warn" style="margin-top:6px">✕ Carte introuvable</div>`; avoirGCTarget = null; calcRefundTotal(); return; }
+  avoirGCTarget = gc.code;
+  res.innerHTML = `<div class="info-box ok" style="margin-top:6px">✓ Carte <strong>${gc.code}</strong> — Solde actuel : ${fp(gc.remaining)} → sera crédité</div>`;
+  calcRefundTotal();
+}
+
+function confirmRefund() {
+  const ticket = U.transactions.find(t => t.id === currentRefundTicketId);
+  if (!ticket || !selectedRefundMethod) return;
+
+  // Collect refunded items
+  const refundedItems = [];
+  let refundTotal = 0;
+  ticket.items.forEach(item => {
+    const chk = document.getElementById('chk-' + item.id);
+    const qtyInp = document.getElementById('qty-' + item.id);
+    if (!chk || !chk.checked) return;
+    const qty = parseInt(qtyInp?.value) || 0;
+    if (qty <= 0) return;
+    refundedItems.push({ id: item.id, name: item.name, emoji: item.emoji||'', qty, price: item.price });
+    refundTotal += item.price * qty;
+  });
+
+  if (!refundedItems.length || refundTotal <= 0) { toast('Aucun article sélectionné', 'error'); return; }
+
+  const reason = document.getElementById('refund-reason').value.trim();
+
+  // Restore stock
+  refundedItems.forEach(ri => {
+    const p = U.products.find(x => x.id === ri.id);
+    if (p && p.stock != null) p.stock += ri.qty;
+  });
+
+  // Handle avoir (gift card)
+  let gcCreated = null;
+  if (selectedRefundMethod === 'avoir') {
+    if (avoirGCTarget && avoirGCTarget !== 'new') {
+      // Credit existing GC
+      const gc = U.giftCards.find(c => c.code === avoirGCTarget);
+      if (gc) { gc.amount += refundTotal; gc.remaining += refundTotal; gcCreated = gc.code; }
+    } else {
+      // Create new GC
+      const newCode = genGCCode ? genGCCode() : 'AV-' + Date.now().toString(36).toUpperCase();
+      U.giftCards.push({ code: newCode, amount: refundTotal, remaining: refundTotal, beneficiary: '', occasion: 'Avoir remboursement #' + String(ticket.number).padStart(4,'0'), createdAt: new Date().toISOString(), lastUsed: null });
+      gcCreated = newCode;
+    }
+  }
+
+  // Remove loyalty points if applicable
+  if (ticket.loyaltyCustomerId) {
+    const lc = U.loyaltyCustomers.find(x => x.id === ticket.loyaltyCustomerId);
+    if (lc) {
+      const rate = U.loyaltyRate || 1;
+      const ptsToRemove = Math.floor(refundTotal * rate);
+      lc.points = Math.max(0, lc.points - ptsToRemove);
+      lc.totalSpent = Math.max(0, (lc.totalSpent||0) - refundTotal);
+    }
+  }
+
+  // Create refund record on the original ticket
+  ticket.refunds = ticket.refunds || [];
+  const refundRecord = {
+    id: 'r_' + Date.now(),
+    date: new Date().toISOString(),
+    items: refundedItems,
+    total: refundTotal,
+    method: selectedRefundMethod,
+    reason,
+    gcCode: gcCreated || null
+  };
+  ticket.refunds.push(refundRecord);
+
+  // Create a visible refund entry in transactions (negative)
+  U.transactions.push({
+    id: 'ref_' + Date.now(),
+    number: ticket.number,
+    date: new Date().toISOString(),
+    isRefund: true,
+    refundOf: ticket.id,
+    items: refundedItems,
+    total: -refundTotal,
+    payment: { method: selectedRefundMethod, gcCode: gcCreated },
+    note: reason || 'Remboursement ticket #' + String(ticket.number).padStart(4,'0')
+  });
+
+  saveU();
+  closeModal('modal-refund');
+  closeModal('modal-receipt');
+
+  let msg = `↩ Remboursement de ${fp(refundTotal)}`;
+  if (gcCreated) msg += ` — Avoir créé : ${gcCreated}`;
+  toast(msg, 'success');
+
+  if (gcCreated) toast(`🎁 Carte cadeau ${gcCreated} disponible`, 'success');
+  renderHistory();
+}
+
+
+// ═══════════════════════════════════════
+// IMPORT BACKUP
+// ═══════════════════════════════════════
+let importData = null;
+
+function handleImportDrop(event) {
+  event.preventDefault();
+  document.getElementById('import-drop').classList.remove('dragover');
+  const file = event.dataTransfer.files[0];
+  if (file) handleImportFile(file);
+}
+
+function handleImportFile(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.json')) {
+    showImportPreview('error', '✕ Fichier invalide', 'Sélectionnez un fichier .json exporté depuis CaisseOS.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      validateImport(parsed);
+    } catch {
+      showImportPreview('error', '✕ Fichier corrompu', 'Impossible de lire ce fichier JSON.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function validateImport(parsed) {
+  let account = null;
+  // Format exportAllData : { account:{...}, products:[...], transactions:[...], ... }
+  if (parsed.account && parsed.products !== undefined) {
+    account = {
+      ...parsed.account,
+      products:         parsed.products         || [],
+      transactions:     parsed.transactions     || [],
+      giftCards:        parsed.giftCards         || [],
+      loyaltyCustomers: parsed.loyaltyCustomers || [],
+    };
+  }
+  // Format objet compte direct
+  else if (parsed.username && parsed.products !== undefined) {
+    account = parsed;
+  }
+  // Tableau de comptes
+  else if (Array.isArray(parsed) && parsed[0]?.username) {
+    account = parsed[0];
+  }
+
+  if (!account || !account.username) {
+    showImportPreview('error', '✕ Format non reconnu', 'Ce fichier ne semble pas être une sauvegarde CaisseOS valide.');
+    importData = null;
+    document.getElementById('import-confirm-btn').classList.add('hidden');
+    return;
+  }
+
+  importData = account;
+
+  const nbProd = (account.products || []).length;
+  const nbTx   = (account.transactions || []).length;
+  const nbGC   = (account.giftCards || []).length;
+  const nbLoy  = (account.loyaltyCustomers || []).length;
+  const date   = parsed.exportDate
+    ? new Date(parsed.exportDate).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' })
+    : 'Date inconnue';
+
+  const existing = GA().find(a => a.username?.toLowerCase() === account.username?.toLowerCase());
+
+  const preview = document.getElementById('import-preview');
+  preview.className = 'import-preview ok';
+  preview.innerHTML =
+    '<div class="ip-title">✓ Sauvegarde reconnue — ' + esc(account.company || account.username) + '</div>' +
+    '<div class="ip-row"><span>Identifiant</span><span>' + esc(account.username) + '</span></div>' +
+    '<div class="ip-row"><span>Entreprise</span><span>' + esc(account.company || '—') + '</span></div>' +
+    '<div class="ip-row"><span>Articles</span><span>' + nbProd + '</span></div>' +
+    '<div class="ip-row"><span>Transactions</span><span>' + nbTx + '</span></div>' +
+    '<div class="ip-row"><span>Cartes cadeaux</span><span>' + nbGC + '</span></div>' +
+    '<div class="ip-row"><span>Clients fidélité</span><span>' + nbLoy + '</span></div>' +
+    '<div class="ip-row"><span>Date sauvegarde</span><span>' + date + '</span></div>' +
+    (existing ? '<div style="color:var(--orange);font-size:11px;margin-top:4px">⚠ Un compte avec cet identifiant existe déjà — il sera écrasé.</div>' : '');
+  preview.classList.remove('hidden');
+  document.getElementById('import-confirm-btn').classList.remove('hidden');
+}
+
+function showImportPreview(type, title, msg) {
+  const preview = document.getElementById('import-preview');
+  preview.className = 'import-preview ' + type;
+  preview.innerHTML = '<div class="ip-title">' + title + '</div><div style="font-size:11px;margin-top:3px;color:var(--text2)">' + msg + '</div>';
+  preview.classList.remove('hidden');
+  document.getElementById('import-confirm-btn').classList.add('hidden');
+  importData = null;
+}
+
+function confirmImport() {
+  if (!importData) return;
+  const all = GA().filter(a => a.username?.toLowerCase() !== importData.username?.toLowerCase());
+  const restored = {
+    id:               importData.id               || 'u_' + Date.now(),
+    username:         importData.username,
+    password:         importData.password         || btoa('changeme'),
+    company:          importData.company          || '',
+    phone:            importData.phone            || '',
+    footer:           importData.footer           || 'Merci de votre visite !',
+    tva:              importData.tva              || 20,
+    showTva:          importData.showTva          !== undefined ? importData.showTva : true,
+    bw:               importData.bw               || false,
+    loyaltyRate:      importData.loyaltyRate      || 1,
+    loyaltyThreshold: importData.loyaltyThreshold || 100,
+    loyaltyReward:    importData.loyaltyReward    || 5,
+    nextTicket:       importData.nextTicket       || 1,
+    products:         importData.products         || [],
+    transactions:     importData.transactions     || [],
+    giftCards:        importData.giftCards        || [],
+    loyaltyCustomers: importData.loyaltyCustomers || [],
+  };
+  // Si la sauvegarde n'a pas de mot de passe (ancien format), on en demande un
+  if (!importData.password) {
+    const newPass = prompt('⚠ Cette sauvegarde ne contient pas de mot de passe.\nChoisissez un nouveau mot de passe (min. 4 caractères) :');
+    if (newPass && newPass.length >= 4) restored.password = btoa(newPass);
+  }
+  all.push(restored);
+  SA(all);
+  importData = null;
+  document.getElementById('import-preview').classList.add('hidden');
+  document.getElementById('import-confirm-btn').classList.add('hidden');
+  toast('Compte restauré — connexion automatique…', 'success');
+  setTimeout(() => startSession(restored), 600);
+}
 
 // ═══════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════
+function formatPhone(input) {
+  // Keep only digits
+  let digits = input.value.replace(/\D/g, '');
+  // Limit to 10 digits (French number)
+  digits = digits.slice(0, 10);
+  // Insert a dot after every 2 digits
+  let formatted = digits.match(/.{1,2}/g)?.join('.') || '';
+  input.value = formatted;
+}
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function confirmAction(title, msg, cb) {
   document.getElementById('confirm-title').textContent = title;
@@ -1657,7 +2281,7 @@ function confirmAction(title, msg, cb) {
   document.getElementById('modal-confirm').classList.remove('hidden');
 }
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); }));
-const fp = n => (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+function fp(n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
 function esc(str) { if (!str) return ''; const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function toast(msg, type = '') {
   const c = document.getElementById('toast-container');
@@ -1677,3 +2301,5 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
+//CaisseOS - Fait et créé par Foxees et Claude.ai pour les bug.
+//Fait avec ❤️ en France 🇫🇷 ,Fait pour les artisant de débutant a expert
