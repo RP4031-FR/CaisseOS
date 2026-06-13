@@ -354,6 +354,134 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
 .import-preview .ip-title{font-weight:700;color:var(--text);margin-bottom:2px}
 .import-preview .ip-row{display:flex;justify-content:space-between;color:var(--text2)}
 .import-preview .ip-row span:last-child{color:var(--text);font-weight:600}
+
+/* NUMERIC PAD */
+.numpad-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:flex-end;justify-content:flex-end;
+  animation:fadeIn .15s ease;
+}
+.numpad-backdrop{position:absolute;inset:0}
+.numpad{
+  position:relative;
+  width:310px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px 10px 0 0;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+  animation:slideUpPad .2s ease;
+  z-index:1;
+  margin-bottom:0;
+  /* aligne avec le panneau panier (310px) */
+  flex-shrink:0;
+}
+@keyframes slideUpPad{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.numpad-header{
+  padding:12px 14px 8px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.numpad-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2)}
+.numpad-close{background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+.numpad-close:hover{color:var(--text)}
+/* Mode tabs */
+.numpad-modes{display:flex;gap:4px;padding:8px 10px}
+.numpad-mode{
+  flex:1;padding:5px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+  border:1px solid var(--border);border-radius:var(--r);background:transparent;
+  color:var(--text2);cursor:pointer;transition:all .15s;text-align:center;
+}
+.numpad-mode.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
+.bw .numpad-mode.active{color:#fff}
+/* Display */
+.numpad-display{
+  margin:0 10px 8px;
+  padding:10px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  display:flex;align-items:baseline;gap:6px;
+  min-height:46px;
+}
+.numpad-display .nd-prefix{font-size:11px;color:var(--text2);flex-shrink:0}
+.numpad-display .nd-val{
+  flex:1;font-family:var(--display);font-size:28px;font-weight:900;
+  letter-spacing:-1px;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.numpad-display .nd-suffix{font-size:13px;color:var(--accent);flex-shrink:0;font-weight:700}
+.bw .numpad-display .nd-suffix{color:var(--text)}
+/* Item selector */
+.numpad-item-select{
+  margin:0 10px 8px;
+  padding:0;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  max-height:100px;
+  overflow-y:auto;
+}
+.numpad-cart-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background .1s;
+  font-size:12px;
+}
+.numpad-cart-item:last-child{border-bottom:none}
+.numpad-cart-item:hover{background:var(--bg4)}
+.numpad-cart-item.active{background:rgba(240,192,64,.1);border-left:3px solid var(--accent)}
+.bw .numpad-cart-item.active{background:var(--bg4);border-left:3px solid #000}
+.numpad-cart-item .nci-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.numpad-cart-item .nci-qty{color:var(--accent);font-weight:700;font-size:13px;flex-shrink:0}
+.bw .numpad-cart-item .nci-qty{color:var(--text)}
+/* Keys grid */
+.numpad-keys{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:6px;
+  padding:6px 10px 10px;
+}
+.nk{
+  padding:14px 0;
+  font-family:var(--display);
+  font-size:22px;font-weight:700;
+  text-align:center;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  cursor:pointer;
+  transition:all .1s;
+  color:var(--text);
+  user-select:none;
+}
+.nk:hover{background:var(--bg4);border-color:var(--text3)}
+.nk:active{transform:scale(.93);background:var(--bg4)}
+.nk.nk-zero{grid-column:span 2}
+.nk.nk-del{font-size:18px;color:var(--text2)}
+.nk.nk-del:hover{color:var(--danger);border-color:var(--danger)}
+.nk.nk-ok{
+  grid-column:span 3;
+  background:var(--accent);color:var(--bg);
+  border-color:var(--accent);font-size:14px;
+  padding:13px 0;letter-spacing:.05em;
+}
+.nk.nk-ok:hover{background:var(--accent-dim)}
+.bw .nk.nk-ok{color:#fff}
+.nk.nk-clear{font-size:12px;color:var(--danger);border-color:rgba(224,82,82,.4)}
+.nk.nk-clear:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+/* Trigger button */
+.numpad-trigger{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:6px;
+  font-size:11px;background:transparent;
+  border:1px dashed var(--border);color:var(--text3);
+  cursor:pointer;border-radius:var(--r);transition:all .15s;
+}
+.numpad-trigger:hover{border-color:var(--accent);color:var(--accent)}
+.bw .numpad-trigger:hover{border-color:#000;color:#000}
 </style>
 </head>
 <body>
@@ -399,7 +527,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       </button>
     </div>
 
-    <div class="auth-footer">CaisseOS v2.0.1 · Données 100% locales</div>
+    <div class="auth-footer">CaisseOS v2.1 · Données 100% locales</div>
   </div>
 </div>
 
@@ -447,6 +575,9 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
         <div class="cart-list scroll" id="cart-list"></div>
         <div class="cart-footer">
           <div id="loy-chip-wrap"></div>
+          <button class="numpad-trigger" onclick="openNumpad()">
+            <span style="font-size:15px">🔢</span> Pad numérique
+          </button>
           <div class="discount-row">
             <input id="discount-input" type="number" min="0" max="100" placeholder="Remise %" style="max-width:100px">
             <input id="note-input" type="text" placeholder="Note…">
@@ -884,6 +1015,48 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
   </div>
 </div>
 
+
+<!-- NUMERIC PAD -->
+<div id="numpad-overlay" class="numpad-overlay hidden">
+  <div class="numpad-backdrop" onclick="closeNumpad()"></div>
+  <div class="numpad">
+    <div class="numpad-header">
+      <span class="numpad-title">Pad numérique</span>
+      <button class="numpad-close" onclick="closeNumpad()">✕</button>
+    </div>
+    <!-- Mode -->
+    <div class="numpad-modes">
+      <button class="numpad-mode active" id="npm-qty"    onclick="setNumpadMode('qty')">Quantité</button>
+      <button class="numpad-mode"        id="npm-remise" onclick="setNumpadMode('remise')">Remise %</button>
+      <button class="numpad-mode"        id="npm-prix"   onclick="setNumpadMode('prix')">Prix</button>
+      <button class="numpad-mode"        id="npm-note"   onclick="setNumpadMode('note')">Note</button>
+    </div>
+    <!-- Sélecteur article (mode qty / prix) -->
+    <div id="numpad-item-select" class="numpad-item-select"></div>
+    <!-- Affichage -->
+    <div class="numpad-display">
+      <span class="nd-prefix" id="nd-prefix">Qté</span>
+      <span class="nd-val"    id="nd-val">0</span>
+      <span class="nd-suffix" id="nd-suffix"></span>
+    </div>
+    <!-- Touches -->
+    <div class="numpad-keys">
+      <div class="nk" onclick="npKey('7')">7</div>
+      <div class="nk" onclick="npKey('8')">8</div>
+      <div class="nk" onclick="npKey('9')">9</div>
+      <div class="nk" onclick="npKey('4')">4</div>
+      <div class="nk" onclick="npKey('5')">5</div>
+      <div class="nk" onclick="npKey('6')">6</div>
+      <div class="nk" onclick="npKey('1')">1</div>
+      <div class="nk" onclick="npKey('2')">2</div>
+      <div class="nk" onclick="npKey('3')">3</div>
+      <div class="nk nk-clear" onclick="npKey('C')">C</div>
+      <div class="nk nk-zero"  onclick="npKey('0')">0</div>
+      <div class="nk nk-del"   onclick="npKey('⌫')">⌫</div>
+      <div class="nk nk-ok"    onclick="npApply()">✓ Appliquer</div>
+    </div>
+  </div>
+</div>
 <div id="toast-container"></div>
 <div id="print-area"></div>
 
@@ -2258,6 +2431,180 @@ function confirmImport() {
   toast('Compte restauré — connexion automatique…', 'success');
   setTimeout(() => startSession(restored), 600);
 }
+
+
+// ═══════════════════════════════════════
+// NUMERIC PAD
+// ═══════════════════════════════════════
+let npMode       = 'qty';   // 'qty' | 'remise' | 'prix' | 'note'
+let npBuffer     = '';      // saisie en cours
+let npSelectedId = null;    // id produit sélectionné (mode qty/prix)
+let npNoteBuffer = '';      // buffer texte pour mode note
+
+function openNumpad() {
+  if (!cart.length && npMode === 'qty') {
+    toast('Le panier est vide', 'error');
+    return;
+  }
+  npBuffer = '';
+  npNoteBuffer = document.getElementById('note-input').value || '';
+  npSelectedId = cart.length ? cart[0].product.id : null;
+  setNumpadMode('qty');
+  document.getElementById('numpad-overlay').classList.remove('hidden');
+}
+
+function closeNumpad() {
+  document.getElementById('numpad-overlay').classList.add('hidden');
+}
+
+function setNumpadMode(mode) {
+  npMode = mode;
+  npBuffer = '';
+
+  // Tabs
+  ['qty','remise','prix','note'].forEach(m => {
+    document.getElementById('npm-' + m).classList.toggle('active', m === mode);
+  });
+
+  // Sélecteur article
+  const sel = document.getElementById('numpad-item-select');
+  if (mode === 'qty' || mode === 'prix') {
+    sel.style.display = '';
+    renderNumpadItems();
+  } else {
+    sel.style.display = 'none';
+  }
+
+  // Préfixe / suffixe
+  const prefix = document.getElementById('nd-prefix');
+  const suffix = document.getElementById('nd-suffix');
+  if (mode === 'qty')    { prefix.textContent = 'Qté';     suffix.textContent = ''; }
+  if (mode === 'remise') { prefix.textContent = 'Remise';  suffix.textContent = '%'; }
+  if (mode === 'prix')   { prefix.textContent = 'Prix';    suffix.textContent = '€'; }
+  if (mode === 'note')   { prefix.textContent = 'Note';    suffix.textContent = ''; }
+
+  // Valeur initiale
+  if (mode === 'remise') {
+    const cur = document.getElementById('discount-input').value || '0';
+    npBuffer = cur === '0' ? '' : cur;
+  } else if (mode === 'note') {
+    npNoteBuffer = document.getElementById('note-input').value || '';
+    npBuffer = npNoteBuffer;
+  } else if (mode === 'qty' && npSelectedId) {
+    const item = cart.find(i => i.product.id === npSelectedId);
+    npBuffer = item ? String(item.qty) : '';
+  } else if (mode === 'prix' && npSelectedId) {
+    const item = cart.find(i => i.product.id === npSelectedId);
+    npBuffer = item ? String(item.product.price) : '';
+  }
+
+  updateNumpadDisplay();
+}
+
+function renderNumpadItems() {
+  const sel = document.getElementById('numpad-item-select');
+  if (!cart.length) { sel.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text3);font-size:12px">Panier vide</div>'; return; }
+  sel.innerHTML = cart.map(i => `
+    <div class="numpad-cart-item${npSelectedId === i.product.id ? ' active' : ''}" onclick="selectNumpadItem('${i.product.id}')">
+      <span style="font-size:15px">${i.product.emoji || '🛍'}</span>
+      <span class="nci-name">${esc(i.product.name)}</span>
+      <span class="nci-qty">${npMode === 'prix' ? fp(i.product.price) : 'x' + i.qty}</span>
+    </div>`).join('');
+}
+
+function selectNumpadItem(id) {
+  npSelectedId = id;
+  const item = cart.find(i => i.product.id === id);
+  if (!item) return;
+  if (npMode === 'qty')  npBuffer = String(item.qty);
+  if (npMode === 'prix') npBuffer = String(item.product.price);
+  renderNumpadItems();
+  updateNumpadDisplay();
+}
+
+function npKey(k) {
+  if (npMode === 'note') {
+    // Mode texte : les touches numériques ajoutent le chiffre
+    if (k === '⌫') { npBuffer = npBuffer.slice(0, -1); }
+    else if (k === 'C') { npBuffer = ''; }
+    else { npBuffer += k; }
+    updateNumpadDisplay();
+    return;
+  }
+
+  if (k === 'C')  { npBuffer = ''; }
+  else if (k === '⌫') { npBuffer = npBuffer.slice(0, -1); }
+  else if (k === '.') {
+    if (npMode === 'qty') return; // pas de décimales pour les quantités
+    if (!npBuffer.includes('.')) npBuffer += '.';
+  }
+  else {
+    if (npBuffer === '0') npBuffer = k;
+    else npBuffer += k;
+  }
+  updateNumpadDisplay();
+}
+
+function updateNumpadDisplay() {
+  const el = document.getElementById('nd-val');
+  if (npMode === 'note') {
+    el.textContent = npBuffer || '…';
+    el.style.fontSize = npBuffer.length > 15 ? '14px' : npBuffer.length > 8 ? '18px' : '28px';
+  } else {
+    el.textContent = npBuffer || '0';
+    el.style.fontSize = '28px';
+  }
+}
+
+function npApply() {
+  if (npMode === 'qty') {
+    const qty = parseInt(npBuffer) || 0;
+    if (qty <= 0) {
+      cart = cart.filter(i => i.product.id !== npSelectedId);
+    } else {
+      const item = cart.find(i => i.product.id === npSelectedId);
+      if (item) {
+        const prod = U.products.find(p => p.id === npSelectedId);
+        if (prod && prod.stock != null && qty > prod.stock) {
+          toast('Stock insuffisant (max ' + prod.stock + ')', 'error');
+          return;
+        }
+        item.qty = qty;
+      }
+    }
+    renderCart();
+    toast('Quantité mise à jour', 'success');
+
+  } else if (npMode === 'remise') {
+    const val = Math.min(100, Math.max(0, parseFloat(npBuffer) || 0));
+    document.getElementById('discount-input').value = val || '';
+    renderCart();
+    toast('Remise ' + val + '% appliquée', 'success');
+
+  } else if (npMode === 'prix') {
+    const prix = parseFloat(npBuffer) || 0;
+    if (prix < 0) { toast('Prix invalide', 'error'); return; }
+    const item = cart.find(i => i.product.id === npSelectedId);
+    if (item) {
+      item.product = { ...item.product, price: prix }; // prix modifié pour cette vente
+      renderCart();
+      toast('Prix modifié : ' + fp(prix), 'success');
+    }
+
+  } else if (npMode === 'note') {
+    document.getElementById('note-input').value = npBuffer;
+    toast('Note enregistrée', 'success');
+  }
+
+  closeNumpad();
+}
+
+// Fermeture avec Echap
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !document.getElementById('numpad-overlay').classList.contains('hidden')) {
+    closeNumpad();
+  }
+});
 
 // ═══════════════════════════════════════
 // UTILS
