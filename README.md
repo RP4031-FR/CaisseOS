@@ -1,7 +1,6 @@
 ## CaisseOS 3.0 est arrivé ##
 
 VERSION 3.0  ·  Écran Client  ·  Pad Numérique  ·  Import Backup  
-──────────────────────────────────────────────────────────────────
     Un seul fichier HTML  ·  Zéro serveur  ·  Zéro abonnement      
 
 
