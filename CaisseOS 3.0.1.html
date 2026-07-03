@@ -696,6 +696,49 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
   font-family:var(--display);
 }
 .bw .disp-step-num{color:#fff}
+
+/* CLIENT BUTTON ON AUTH PAGE */
+.auth-client-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:10px;
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  color:var(--text2);cursor:pointer;
+  transition:all .2s;
+  margin-top:6px;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.auth-client-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(45,212,191,.06)}
+.bw .auth-client-btn:hover{border-color:#000;color:#000;background:var(--bg3)}
+.auth-client-btn .acb-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal);flex-shrink:0;
+}
+.bw .auth-client-btn .acb-dot{background:var(--text)}
+/* Inline client input on auth */
+.auth-client-panel{
+  margin-top:12px;
+  padding:16px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  display:flex;flex-direction:column;gap:12px;
+  animation:slideUp .2s ease;
+}
+.auth-client-panel label{color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.auth-client-code-input{
+  font-family:var(--display);
+  font-size:28px;font-weight:700;letter-spacing:.3em;
+  text-align:center;text-transform:uppercase;
+  background:var(--bg2);border:2px solid var(--border);
+  border-radius:var(--r);padding:12px;color:var(--text);
+  width:100%;transition:border-color .15s;
+}
+.auth-client-code-input:focus{border-color:var(--teal);outline:none}
+.bw .auth-client-code-input:focus{border-color:#000}
+.auth-client-err{color:var(--danger);font-size:11px;text-align:center}
 </style>
 </head>
 <body>
@@ -741,7 +784,28 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       </button>
     </div>
 
-    <div class="auth-footer">CaisseOS v3.0 · Données 100% locales</div>
+    <!-- Bouton écran client -->
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <button class="auth-client-btn" onclick="toggleAuthClientPanel()">
+        <span class="acb-dot"></span>
+        📺 Accéder à l'écran client
+      </button>
+      <div id="auth-client-panel" class="auth-client-panel hidden">
+        <div>
+          <label>Code de session (fourni par la caisse)</label>
+          <input class="auth-client-code-input" id="auth-client-code"
+                 maxlength="6" placeholder="_ _ _ _ _ _"
+                 oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+                 onkeydown="if(event.key==='Enter')launchClientFromAuth()">
+        </div>
+        <div id="auth-client-err" class="auth-client-err hidden">Code incorrect ou session expirée</div>
+        <button class="primary w100" onclick="launchClientFromAuth()" style="padding:10px;font-size:13px">
+          📺 Lancer l'écran client →
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-footer">CaisseOS v3.0.1 · Données 100% locales</div>
   </div>
 </div>
 
@@ -1268,7 +1332,8 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       <div class="nk" onclick="npKey('2')">2</div>
       <div class="nk" onclick="npKey('3')">3</div>
       <div class="nk nk-clear" onclick="npKey('C')">C</div>
-      <div class="nk nk-zero"  onclick="npKey('0')">0</div>
+      <div class="nk"           onclick="npKey('0')" >0</div>
+      <div class="nk"           onclick="npKey('.')">.</div>
       <div class="nk nk-del"   onclick="npKey('⌫')">⌫</div>
       <div class="nk nk-ok"    onclick="npApply()">✓ Appliquer</div>
     </div>
@@ -1426,6 +1491,16 @@ let payLoyCustomer = null;
 let gcPayCard = null;
 let gcMixCard = null;
 
+// ── Client display (déclarés ici pour éviter TDZ) ──────────────────
+const IS_CLIENT_MODE = new URLSearchParams(window.location.search).get('mode') === 'client';
+const URL_SESSION    = new URLSearchParams(window.location.search).get('session') || '';
+let displayChannel   = null;
+let displaySession   = null;
+let clientSession    = null;
+let displayActive    = false;
+let clientConnected  = false;
+let clockStarted     = false;
+
 const EMOJIS = ['🛍','🥐','☕','🍕','🥗','🍺','🧃','🍰','🥩','🧁','🍫','🍬','🎁','📦','🖊','💊','🔧','📱','👗','🎵','🌸','🍀','🌮','🧇','🥪','🍦','🎀','✂️','📚','🧴'];
 
 // ═══════════════════════════════════════
@@ -1493,6 +1568,7 @@ function startSession(acc) {
 }
 
 function logout() {
+  if (displayActive) stopDisplaySession();
   U = null; cart = [];
   localStorage.removeItem('pos_session');
   document.body.classList.remove('bw');
@@ -1640,7 +1716,9 @@ function renderCart() {
 
   if (!cart.length) {
     list.innerHTML = `<div class="cart-empty"><div style="font-size:36px">🛒</div><div class="dim small">Panier vide</div></div>`;
-    summary.innerHTML = ''; btn.disabled = true; return;
+    summary.innerHTML = ''; btn.disabled = true;
+    broadcastCart(); // Diffuse panier vide → écran client repasse en idle
+    return;
   }
   list.innerHTML = cart.map(i => `
     <div class="cart-item">
@@ -1719,7 +1797,9 @@ function updateChange() {
   wrap.classList.remove('hidden');
   const change = given - t.total;
   if (change < 0) { disp.className = 'change-big negative'; disp.textContent = 'Manque ' + fp(-change); btn.disabled = true; }
-  else { disp.className = 'change-big'; disp.textContent = fp(change); btn.disabled = false; }
+  else { disp.className = 'change-big'; disp.textContent = fp(change); btn.disabled = false;
+    broadcastPayment('especes', t.total, change); // Mise à jour monnaie sur écran client
+  }
 }
 
 function checkGCPay() {
@@ -2801,10 +2881,8 @@ let npSelectedId = null;    // id produit sélectionné (mode qty/prix)
 let npNoteBuffer = '';      // buffer texte pour mode note
 
 function openNumpad() {
-  if (!cart.length && npMode === 'qty') {
-    toast('Le panier est vide', 'error');
-    return;
-  }
+  // En mode quantité, le panier doit avoir des articles
+  // Les autres modes (remise, note) sont toujours disponibles
   npBuffer = '';
   npNoteBuffer = document.getElementById('note-input').value || '';
   npSelectedId = cart.length ? cart[0].product.id : null;
@@ -2894,7 +2972,7 @@ function npKey(k) {
   if (k === 'C')  { npBuffer = ''; }
   else if (k === '⌫') { npBuffer = npBuffer.slice(0, -1); }
   else if (k === '.') {
-    if (npMode === 'qty') return; // pas de décimales pour les quantités
+    if (npMode === 'qty' || npMode === 'remise') return; // pas de décimales pour quantités et remises
     if (!npBuffer.includes('.')) npBuffer += '.';
   }
   else {
@@ -2945,8 +3023,8 @@ function npApply() {
     if (prix < 0) { toast('Prix invalide', 'error'); return; }
     const item = cart.find(i => i.product.id === npSelectedId);
     if (item) {
-      item.product = { ...item.product, price: prix }; // prix modifié pour cette vente
-      renderCart();
+      item.product = { ...item.product, price: prix }; // prix modifié pour cette vente uniquement
+      renderCart(); // appelle broadcastCart() en interne
       toast('Prix modifié : ' + fp(prix), 'success');
     }
 
@@ -2970,19 +3048,13 @@ document.addEventListener('keydown', e => {
 // CLIENT DISPLAY SYSTEM
 // ═══════════════════════════════════════
 
-// ── Détection mode client ──────────────
-const IS_CLIENT_MODE = new URLSearchParams(window.location.search).get('mode') === 'client';
-const URL_SESSION    = new URLSearchParams(window.location.search).get('session') || '';
-
-// ── BroadcastChannel ──────────────────
-let displayChannel   = null;
-let displaySession   = null; // code 6 chars côté vendeur
-let clientSession    = null; // code saisi côté client
-let displayActive    = false;
-let clientConnected  = false;
+// ── BroadcastChannel (variables déclarées en haut du script) ──
 
 // ── Horloge écran client ──────────────
+// clockStarted déclaré en haut du script
 function startClock() {
+  if (clockStarted) return;
+  clockStarted = true;
   function tick() {
     const el = document.getElementById('cd-clock');
     if (el) el.textContent = new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
@@ -3041,7 +3113,9 @@ function stopDisplaySession() {
 
 function openClientWindow() {
   if (!displaySession) return;
-  const url = window.location.pathname + '?mode=client&session=' + displaySession;
+  // Supporte file://, localhost et domaines HTTPS
+  const base = window.location.href.split('?')[0];
+  const url = base + '?mode=client&session=' + displaySession;
   window.open(url, '_blank', 'width=1024,height=768');
   closeModal('modal-display');
 }
@@ -3049,7 +3123,8 @@ function openClientWindow() {
 // ── Broadcast état panier vers le client ──
 function broadcastCart(type = 'cart') {
   if (!displayActive || !displayChannel) return;
-  const t = cart.length ? getCartTotals() : null;
+  let t = null;
+  try { t = cart.length ? getCartTotals() : null; } catch(e) { t = null; }
   displayChannel.postMessage({
     type,
     company:  U?.company || '',
@@ -3148,10 +3223,11 @@ function connectClientSession() {
   ch.postMessage({ type: 'client_ping' });
 
   // Timeout : si pas de réponse en 4s → code invalide
-  const timeout = setTimeout(() => {
+  setTimeout(() => {
     if (!clientConnected) {
       errEl.classList.remove('hidden');
       errEl.textContent = 'Aucune caisse trouvée — vérifiez le code et que la caisse est active';
+      document.getElementById('cd-status-label').textContent = 'Non connecté';
       showClientState('connect');
     }
   }, 4000);
@@ -3236,9 +3312,62 @@ function renderClientThanks(d) {
 
 // Lancement auto si mode client
 if (IS_CLIENT_MODE) {
-  document.addEventListener('DOMContentLoaded', initClientMode);
-  // Sécurité si DOMContentLoaded déjà passé
-  if (document.readyState !== 'loading') initClientMode();
+  function launchClient() {
+    initClientMode();
+    // Si code dans URL, auto-connecter
+    if (URL_SESSION) {
+      document.getElementById('cd-code-input').value = URL_SESSION;
+      connectClientSession();
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', launchClient);
+  } else {
+    launchClient();
+  }
+} else if (URL_SESSION) {
+  // Code dans URL mais pas en mode client → ouvrir le panel sur auth
+  document.addEventListener('DOMContentLoaded', () => {
+    const panel = document.getElementById('auth-client-panel');
+    if (panel) {
+      panel.classList.remove('hidden');
+      const inp = document.getElementById('auth-client-code');
+      if (inp) inp.value = URL_SESSION;
+    }
+  });
+}
+
+
+// ── Écran client depuis la page de connexion ──────────────────────
+function toggleAuthClientPanel() {
+  const panel = document.getElementById('auth-client-panel');
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden');
+  if (isHidden) {
+    // Auto-remplir si le code est dans l'URL
+    if (URL_SESSION) {
+      document.getElementById('auth-client-code').value = URL_SESSION;
+    }
+    setTimeout(() => document.getElementById('auth-client-code').focus(), 50);
+  }
+}
+
+function launchClientFromAuth() {
+  const code = document.getElementById('auth-client-code').value.trim().toUpperCase();
+  const errEl = document.getElementById('auth-client-err');
+  if (code.length < 4) {
+    errEl.textContent = 'Code trop court (minimum 4 caractères)';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  errEl.classList.add('hidden');
+  // Masquer la page d'auth et lancer l'écran client
+  document.getElementById('view-auth').classList.add('hidden');
+  document.getElementById('client-display').classList.remove('hidden');
+  startClock();
+  // Remplir le champ de connexion et lancer
+  document.getElementById('cd-code-input').value = code;
+  connectClientSession();
 }
 
 // ═══════════════════════════════════════
@@ -3274,6 +3403,7 @@ function toast(msg, type = '') {
   setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(30px)'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 2800);
 }
 document.getElementById('discount-input')?.addEventListener('input', renderCart);
+document.getElementById('note-input')?.addEventListener('input', () => { broadcastCart(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => m.classList.add('hidden'));
   if (e.key === 'Enter' && !document.getElementById('view-auth').classList.contains('hidden')) {
