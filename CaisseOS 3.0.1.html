@@ -23,7 +23,7 @@
   --info:#000;--purple:#000;--orange:#000;--teal:#000;
   --shadow:0 2px 12px rgba(0,0,0,.15);
 }
-html,body{height:100%;overflow:hidden}
+html,body{height:100%;overflow:hidden;position:fixed;inset:0;width:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;transition:background .3s,color .3s}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
@@ -55,7 +55,7 @@ input::placeholder{color:var(--text3)}
 label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:4px}
 
 /* AUTH */
-#view-auth{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);padding:20px}
+#view-auth{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg);padding:20px;overflow-y:auto}
 .auth-box{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:40px;box-shadow:var(--shadow)}
 .auth-logo{font-family:var(--display);font-weight:900;font-size:42px;letter-spacing:-2px;line-height:1;margin-bottom:4px}
 .auth-logo span{color:var(--accent)}
@@ -805,7 +805,7 @@ label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;
       </div>
     </div>
 
-    <div class="auth-footer">CaisseOS v3.0.1 · Données 100% locales</div>
+    <div class="auth-footer">CaisseOS v3.0.2 · Données 100% locales</div>
   </div>
 </div>
 
@@ -1509,6 +1509,35 @@ const EMOJIS = ['🛍','🥐','☕','🍕','🥗','🍺','🧃','🍰','🥩','�
 const GA = () => JSON.parse(localStorage.getItem('pos_accounts') || '[]');
 const SA = a => localStorage.setItem('pos_accounts', JSON.stringify(a));
 const getAcc = id => GA().find(a => a.id === id) || null;
+
+// ═══════════════════════════════════════
+// SÉCURITÉ MOTS DE PASSE (SHA-256 salé, Web Crypto API)
+// Remplace l'ancien btoa() qui n'offrait aucune protection réelle
+// (base64 est réversible en une ligne : atob(hash)).
+// ═══════════════════════════════════════
+function genSalt() {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+async function hashPassword(pass, salt) {
+  const enc = new TextEncoder().encode(salt + pass);
+  const digest = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+}
+// Migration douce : si un compte a encore l'ancien mot de passe en btoa()
+// (pas de champ "salt"), on le vérifie à l'ancienne puis on le rehash au
+// prochain login réussi, sans jamais forcer l'utilisateur à le recréer.
+async function verifyPassword(acc, pass) {
+  if (acc.salt) {
+    return (await hashPassword(pass, acc.salt)) === acc.password;
+  }
+  // Compte legacy (avant la migration) : vérifie avec l'ancien schéma btoa().
+  try { return atob(acc.password) === pass; } catch { return false; }
+}
+async function setPassword(acc, pass) {
+  acc.salt = genSalt();
+  acc.password = await hashPassword(pass, acc.salt);
+}
 function saveU() {
   if (!U) return;
   const all = GA(); const i = all.findIndex(a => a.id === U.id);
@@ -1526,16 +1555,17 @@ function switchAuthTab(tab) {
 }
 function showAuthErr(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.remove('hidden'); }
 
-function login() {
+async function login() {
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!user || !pass) { showAuthErr('Champs obligatoires'); return; }
-  const acc = GA().find(a => a.username.toLowerCase() === user.toLowerCase() && a.password === btoa(pass));
-  if (!acc) { showAuthErr('Identifiant ou mot de passe incorrect'); return; }
+  const acc = GA().find(a => a.username.toLowerCase() === user.toLowerCase());
+  if (!acc || !(await verifyPassword(acc, pass))) { showAuthErr('Identifiant ou mot de passe incorrect'); return; }
+  if (!acc.salt) { await setPassword(acc, pass); const all = GA(); all[all.findIndex(a=>a.id===acc.id)] = acc; SA(all); }
   startSession(acc);
 }
 
-function register() {
+async function register() {
   const user = document.getElementById('reg-user').value.trim();
   const pass = document.getElementById('reg-pass').value;
   const company = document.getElementById('reg-company').value.trim();
@@ -1544,8 +1574,9 @@ function register() {
   if (pass.length < 4) { showAuthErr('Mot de passe trop court (4 min)'); return; }
   const all = GA();
   if (all.find(a => a.username.toLowerCase() === user.toLowerCase())) { showAuthErr('Identifiant déjà utilisé'); return; }
+  const salt = genSalt();
   const acc = {
-    id: 'u_' + Date.now(), username: user, password: btoa(pass),
+    id: 'u_' + Date.now(), username: user, password: await hashPassword(pass, salt), salt,
     company, phone, footer: 'Merci de votre visite !', tva: 20, showTva: true, bw: false,
     loyaltyRate: 1, loyaltyThreshold: 100, loyaltyReward: 5,
     products: [
@@ -2481,12 +2512,12 @@ function saveSettings() {
 }
 function saveBoolSettings() { U.showTva = document.getElementById('toggle-tva').checked; saveU(); renderCart(); }
 function toggleBW() { U.bw = document.getElementById('toggle-bw').checked; document.body.classList.toggle('bw', U.bw); saveU(); }
-function changePassword() {
+async function changePassword() {
   const p1 = document.getElementById('set-newpass').value;
   const p2 = document.getElementById('set-confirmpass').value;
   if (!p1 || p1.length < 4) { toast('Mot de passe trop court', 'error'); return; }
   if (p1 !== p2) { toast('Mots de passe différents', 'error'); return; }
-  U.password = btoa(p1); saveU();
+  await setPassword(U, p1); saveU();
   document.getElementById('set-newpass').value = ''; document.getElementById('set-confirmpass').value = '';
   toast('Mot de passe modifié', 'success');
 }
@@ -3413,5 +3444,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
-//CaisseOS - Fait et créé par Foxees et Claude.ai pour les bug.
-//Fait avec ❤️ en France 🇫🇷 ,Fait pour les artisant de débutant a expert
